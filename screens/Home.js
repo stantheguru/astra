@@ -10,7 +10,7 @@ const Home = ({navigation}) => {
   console.log(data);
 
   useEffect(() => {
-    fetch('http://f5a2-154-123-66-97.ngrok.io/getlist')
+    fetch('https://cf5e-102-223-84-20.ngrok.io/getlist')
       .then((response) => response.json())
       .then((json) => setData(json))
       .catch((error) => console.error(error))

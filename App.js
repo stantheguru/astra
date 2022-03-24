@@ -7,6 +7,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from  './screens/Login';
 import Home from './screens/Home';
 import HomeScreen from './screens/HomeScreen';
+import { useNavigation } from '@react-navigation/native';
+
+
 
 import { Icon } from 'react-native-elements';
 import { AntDesign, SimpleLineIcons } from '@expo/vector-icons'
@@ -26,6 +29,8 @@ function ActionBarIcon() {
 }
 
 function ActionBarIconLeft() {
+  const navigation = useNavigation();
+
   return (
 
     <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{marginLeft: 5}}>
@@ -39,14 +44,14 @@ function ActionBarIconLeft() {
 
 const Stack = createStackNavigator();
 
-export default function App() {
+const App = () => {
 
- 
+  
 
   return (
     <NavigationContainer>
     <Stack.Navigator 
-    initialRouteName='Login'>
+    initialRouteName='Home'>
           <Stack.Screen name="HomeScreen" component={HomeScreen} options={{headerShown:false}}></Stack.Screen>
 
     <Stack.Screen name="Login" component={Login} options={{headerShown:false}}></Stack.Screen>
@@ -58,6 +63,10 @@ export default function App() {
   </NavigationContainer>
   );
 }
+
+
+export default App
+
 
 const styles = StyleSheet.create({
   container: {

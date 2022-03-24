@@ -22,9 +22,9 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [data, setData] = useState([]);
 
-  const push = () => {
-    try{
-      fetch('http://f5a2-154-123-66-97.ngrok.io/getlist', {
+  const push = async () => {
+    
+    const response = await fetch('https://cf5e-102-223-84-20.ngrok.io/login_react', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -34,21 +34,19 @@ const Login = ({ navigation }) => {
       email: email,
       password: password
     })
+    
   });
-  
-    }catch(e){
-      alert(e);
-    }
-    status();
+  const json = await response.json();
+      const success = json.success;
+      if(success == "Login Success"){
+        navigation.navigate('Home');
+      }else{
+        alert("An error occurred");
+      } 
   }
 
-  const status = () =>{
-    fetch('http://f5a2-154-123-66-97.ngrok.io/getlist')
-    .then((response) => response.json())
-    .then((json) => setData(json))
-    .catch((error) => console.error(error))
-    alert(JSON.stringify(data));
-}
+
+  
   
   
   return (
