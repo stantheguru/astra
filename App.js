@@ -6,10 +6,11 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View, FlatList
 } from "react-native";
 import Constants from "expo-constants";
 import * as SQLite from "expo-sqlite";
+import { Card } from "react-native-elements";
 
 function openDatabase() {
   if (Platform.OS === "web") {
@@ -27,7 +28,7 @@ function openDatabase() {
 }
 
 const db = openDatabase();
-
+var itemes = []
 function Items({ done: doneHeading, onPressItem }) {
   const [items, setItems] = useState(null);
 
@@ -39,6 +40,7 @@ function Items({ done: doneHeading, onPressItem }) {
         (_, { rows: { _array } }) => setItems(_array)
       );
     });
+    itemes = items
   }, []);
 
   const heading = doneHeading ? "Completed" : "Todo";
@@ -71,11 +73,20 @@ function Items({ done: doneHeading, onPressItem }) {
 export default function App() {
   const [text, setText] = useState(null);
   const [forceUpdate, forceUpdateId] = useForceUpdate();
+  const [items, setItems] = useState(null);
 
   useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
         "create table if not exists items (id integer primary key not null, done int, value text, email text)"
+      );
+    });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        `select * from items where done = ?;`,
+        [0],
+        (_, { rows: { _array } }) => setItems(_array)
       );
     });
   }, []);
@@ -88,7 +99,7 @@ export default function App() {
     var email = 'abec@g.com';
     db.transaction(
       (tx) => {
-        tx.executeSql("insert into items (done, value,email) values (0, ?, ?)", [text], [text]);
+        tx.executeSql("insert into items (done, value,email) values (0, ?, '"+email+"')", [text]);
         tx.executeSql("select * from items", [], (_, { rows }) =>
           console.log(JSON.stringify(rows))
         );
@@ -125,6 +136,26 @@ export default function App() {
             />
           </View>
           <ScrollView style={styles.listArea}>
+
+          <FlatList style={{
+    marginBottom: "10%"
+}}
+        data={items}
+        keyExtractor={({ id }, index) => id}
+        renderItem={({ item }) => (
+                <View style={styles.card}>
+
+                        <View style={{ marginLeft: 5 }}>
+                            <Text style={{
+                                color: "#9c9b98"
+                            }}>{item.value}</Text>
+                        </View>                    
+                </View>
+
+
+        )}
+    />
+
             <Items
               key={`forceupdate-todo-${forceUpdateId}`}
               done={false}
@@ -201,4 +232,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 8,
   },
+  card:{
+    marginLeft: 10,
+    backgroundColor: "#000",
+    width: "50%"
+  }
 });
