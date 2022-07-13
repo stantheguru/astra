@@ -10,45 +10,36 @@ const Home = ({navigation}) => {
   console.log(data);
 
   useEffect(() => {
-    fetch('https://cf5e-102-223-84-20.ngrok.io/getlist')
+    /*fetch('https://cf5e-102-223-84-20.ngrok.io/getlist')
       .then((response) => response.json())
       .then((json) => setData(json))
       .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
+      .finally(() => setLoading(false));*/
   }, []);
 
 
 
   return (
-    <ImageBackground 
-    source={{uri: 'https://images.pexels.com/photos/89432/pexels-photo-89432.jpeg?h=350&dpr=2&auto=compress&cs=tinysrgb'}}
-    style={{ flex: 1,
-      width: null,
-      height: null,
+    <View style={{justifyContent: "center", alignItems: "center", flex:1}}>
+       <ImageBackground  resizeMode='contain'
+    source={require("../assets/load.gif")}
+    style={{ 
+      width: "100%",
+      height: "100%",
+      alignItems: "center",
+      justifyContent: "center",
+
+      
       }}
   >
- 
- <View style={{ flex: 1, padding: 24 }}>
-      {isLoading ? <Text>Loading...</Text> : 
-      ( <View style={{ flex: 1, flexDirection: 'column', justifyContent:  'space-between'}}>
-          <Text style={{ fontSize: 18, color: 'green', textAlign: 'center'}}>{data.title}</Text>
-          <Text style={{ fontSize: 14, color: 'green', textAlign: 'center', paddingBottom: 10}}>Art:</Text>
-          <FlatList
-            data={data}
-            keyExtractor={({ id }, index) => id}
-            renderItem={({ item }) => (
-              <Text>{item.id + '. ' + item.art_name}
-              <Image style={{ width: 20, height: 20 }}     source={{uri: "http://f5a2-154-123-66-97.ngrok.io"+item.url}}
- /></Text>
-              
-              
-            )}
-          />
-        </View>
-      )}
-    </View>
-
+    <Image resizeMode='contain'  style={{ 
+      width: "90%",
+      height: "90%",
+      
+      }} source={require("../assets/help.png")}/>
 </ImageBackground >
+    </View>
+   
   )
 
   
