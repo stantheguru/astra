@@ -75,10 +75,15 @@ export default function App() {
   const [forceUpdate, forceUpdateId] = useForceUpdate();
   const [items, setItems] = useState(null);
 
+
+
+
+  
   useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
-        "create table if not exists items (id integer primary key not null, done int, value text, email text)"
+       "create table if not exists items (id integer primary key not null, done int, value text, sender_email text, receiver_email text, time_date text);"
+
       );
     });
 
@@ -89,17 +94,20 @@ export default function App() {
         (_, { rows: { _array } }) => setItems(_array)
       );
     });
-  }, []);
+  }, [items]);
+
 
   const add = (text) => {
     // is text empty?
     if (text === null || text === "") {
       return false;
     }
-    var email = 'abec@g.com';
+    var email = 'r@g.com';
+    var email1 = 's@g.com';
+    var time_date = new Date()
     db.transaction(
       (tx) => {
-        tx.executeSql("insert into items (done, value,email) values (0, ?, '"+email+"')", [text]);
+        tx.executeSql("insert into items (done, value,sender_email, receiver_email, time_date) values (0, ?, '"+email+"', '"+email1+"', '"+time_date+"')", [text]);
         tx.executeSql("select * from items", [], (_, { rows }) =>
           console.log(JSON.stringify(rows))
         );
@@ -109,6 +117,7 @@ export default function App() {
     );
   };
 
+  
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>SQLite Example</Text>
@@ -135,19 +144,20 @@ export default function App() {
               value={text}
             />
           </View>
-          <ScrollView style={styles.listArea}>
 
           <FlatList style={{
     marginBottom: "10%"
 }}
+
+
         data={items}
         keyExtractor={({ id }, index) => id}
         renderItem={({ item }) => (
-                <View style={styles.card}>
+          <View style={item.sender_email === 's@g.com' ? styles.card : styles.cardR}>
 
                         <View style={{ marginLeft: 5 }}>
                             <Text style={{
-                                color: "#9c9b98"
+                                color: "#000"
                             }}>{item.value}</Text>
                         </View>                    
                 </View>
@@ -156,35 +166,8 @@ export default function App() {
         )}
     />
 
-            <Items
-              key={`forceupdate-todo-${forceUpdateId}`}
-              done={false}
-              onPressItem={(id) =>
-                db.transaction(
-                  (tx) => {
-                    tx.executeSql(`update items set done = 1 where id = ?;`, [
-                      id,
-                    ]);
-                  },
-                  null,
-                  forceUpdate
-                )
-              }
-            />
-            <Items
-              done
-              key={`forceupdate-done-${forceUpdateId}`}
-              onPressItem={(id) =>
-                db.transaction(
-                  (tx) => {
-                    tx.executeSql(`delete from items where id = ?;`, [id]);
-                  },
-                  null,
-                  forceUpdate
-                )
-              }
-            />
-          </ScrollView>
+            
+            
         </>
       )}
     </View>
@@ -232,9 +215,32 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 8,
   },
+
   card:{
     marginLeft: 10,
-    backgroundColor: "#000",
-    width: "50%"
+    backgroundColor: "#fff",
+    width: "75%",
+    marginBottom:10,
+    padding:5,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    borderWidth: 1,
+    borderColor: "#dedede",
+
+  },
+
+  cardR:{
+    marginRight: 10,
+    backgroundColor: "#dedede",
+    width: "75%",
+    marginBottom:10,
+    padding:5,
+    borderRadius: 10,
+    alignSelf: "flex-end",
+    borderWidth: 1,
+    borderColor: "#dedede",
+
+
   }
 });
