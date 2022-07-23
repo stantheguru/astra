@@ -1,125 +1,87 @@
-import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
-import React, { useState, useEffect, useRef } from 'react';
-import { Text, View, Button, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import * as Facebook from 'expo-facebook';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
 
-export default function Notifier() {
-  const [expoPushToken, setExpoPushToken] = useState('');
-  const [notification, setNotification] = useState(false);
-  const notificationListener = useRef();
-  const responseListener = useRef();
+export default function App() {
 
-  useEffect(() => {
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token)
-    );
+  const [isLoggedin, setLoggedinStatus] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [isImageLoading, setImageLoadStatus] = useState(false);
 
-    // This listener is fired whenever a notification is received while the app is foregrounded
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
+  facebookLogIn = async () => {
+    try {
+      await Facebook.initializeAsync({
+        appId: '423586466503883',
       });
+      const { type, token, expirationDate, permissions, declinedPermissions } =
+        await Facebook.logInWithReadPermissionsAsync({
+          permissions: ['public_profile'],
+        });
+      if (type === 'success') {
+        // Get the user's name using Facebook's Graph API
+        const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+        Alert.alert('Logged in!', `Hi ${(await response.json()).name}!`);
+      } else {
+        // type === 'cancel'
+      }
+    } catch ({ message }) {
+      alert(`Facebook Login Error: ${message}`);
+    }
+  }
 
-    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
-      });
-
-    return () => {
-      Notifications.removeNotificationSubscription(
-        notificationListener.current
-      );
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
-  }, []);
+  logout = () => {
+    setLoggedinStatus(false);
+    setUserData(null);
+    setImageLoadStatus(false);
+  }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-around',
-      }}>
-      <Text>Your expo push token: {expoPushToken}</Text>
-      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <Text>
-          Title: {notification && notification.request.content.title}{' '}
-        </Text>
-        <Text>Body: {notification && notification.request.content.body}</Text>
-        <Text>
-          Data:{' '}
-          {notification && JSON.stringify(notification.request.content.data)}
-        </Text>
+    isLoggedin ?
+      userData ?
+        <View style={styles.container}>
+          <Image
+            style={{ width: 200, height: 200, borderRadius: 50 }}
+            source={{ uri: userData.picture.data.url }}
+            onLoadEnd={() => setImageLoadStatus(true)} />
+          <ActivityIndicator size="large" color="#0000ff" animating={!isImageLoading} style={{ position: "absolute" }} />
+          <Text style={{ fontSize: 22, marginVertical: 10 }}>Hi {userData.name}!</Text>
+          <TouchableOpacity style={styles.logoutBtn} onPress={this.logout}>
+            <Text style={{ color: "#fff" }}>Logout</Text>
+          </TouchableOpacity>
+        </View> :
+        null
+      :
+      <View style={styles.container}>
+        <Image
+          style={{ width: 200, height: 200, borderRadius: 50, marginVertical: 20 }}
+          source={require("../assets/dating.png")} />
+        <TouchableOpacity style={styles.loginBtn} onPress={facebookLogIn}>
+          <Text style={{ color: "#fff" }}>Login with Facebook</Text>
+        </TouchableOpacity>
       </View>
-      <Button
-        title="Press to Send Notification"
-        onPress={async () => {
-          await sendPushNotification(expoPushToken);
-        }}
-      />
-    </View>
   );
 }
 
-// Can use this function below, OR use Expo's Push Notification Tool-> https://expo.dev/notifications
-async function sendPushNotification(expoPushToken) {
-  const message = {
-    to: expoPushToken,
-    sound: 'default',
-    title: 'Original Title',
-    body: 'And here is the body!',
-    data: { someData: 'goes here' },
-  };
-
-  await fetch('https://exp.host/--/api/v2/push/send', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Accept-encoding': 'gzip, deflate',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(message),
-  });
-}
-
-
-async function registerForPushNotificationsAsync() {
-  let token;
-  if (Device.isDevice) {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log(token);
-  } else {
-    alert('Must use physical device for Push Notifications');
-  }
-
-  if (Platform.OS === 'android') {
-    Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
-  }
-
-  return token;
-}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#e9ebee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loginBtn: {
+    backgroundColor: '#4267b2',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20
+  },
+  logoutBtn: {
+    backgroundColor: 'grey',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    position: "absolute",
+    bottom: 0
+  },
+});

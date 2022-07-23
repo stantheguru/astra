@@ -1,246 +1,201 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
-import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage } from 'react-native-cards';
-
+ import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TextInput,
-  Button,
-  TouchableOpacity, ImageBackground
-} from "react-native";
-import { Icon } from 'react-native-elements';
-import { Input } from 'react-native-elements/dist/input/Input';
-import { AntDesign, SimpleLineIcons } from '@expo/vector-icons'
+  Button, View, Text, StyleSheet, Image, Platform, TouchableOpacity, ImageButton, SafeAreaView, Dimensions, Alert
+} from 'react-native';
+
+import { StatusBar } from "expo-status-bar";
+import * as Facebook from 'expo-facebook';
+import { LinearGradient } from 'expo-linear-gradient';
 
 
+const Login = () => {
 
-const Login = ({ navigation }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [data, setData] = useState([]);
-
-  const push = async () => {
+  const handleFacebookLogin = async () => {
     
-    const response = await fetch('https://cf5e-102-223-84-20.ngrok.io/login_react', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      email: email,
-      password: password
-    })
-    
-  });
-  const json = await response.json();
-      const success = json.success;
-      if(success == "Login Success"){
-        navigation.navigate('Home');
-      }else{
-        alert("An error occurred");
-      } 
-  }
+  };
 
-
-  
-  
-  
   return (
-    <ImageBackground
-      source={require("../assets/back1.jpg")}
-      style={{
-        flex: 1,
-        weight: null,
-        height: null
-      }}
-    >
+    
+    <LinearGradient
+      colors={['pink', 'white', 'white']}
+      style={styles.container}
+      start={{ x: 0.7, y: 0 }}>
 
+      <StatusBar style="auto" />
+      
+      <Text style={styles.heading1}>Spice</Text>
 
-      <View style={styles.image}>
-        <Image style={{  }} source={require("../assets/butterfly.png")} />
+      <View style={styles.inner}>
+
+      <Image
+        style={styles.image}
+        source={require("../assets/dating.png")} />
+         <Text style={styles.heading}>Find your Partner</Text>
+         <Text style={styles.text}>Spice up your love live with Spice</Text>
+
       </View>
-      <View style={{justifyContent: "center",
-        alignItems: "center",
-        alignContent: "center"}}>
-      <Text style={{
-        color: "#fff",
-        fontSize: 26,
-        fontWeight: "bold",
-        fontFamily: "",
-        margin: 8,
+
+      
+
+         <View style={styles.bottom}>
+        <TouchableOpacity  style={styles.continueg}>
+        <Image
+        style={styles.googleImage}
+        source={require("../assets/goog.png")} />
+          <Text style={{
+            color: "#000",
+            fontSize: 14,
+            letterSpacing: 5,
+          }}>Login</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleFacebookLogin} style={styles.continuef} >
+      
         
-      }}>Astra Love</Text>
+        <Image
+        style={styles.fbImage}
+        source={require("../assets/fb.png")} />
+          <Text style={{
+            color: "#000",
+            fontSize: 14,
+            letterSpacing: 5,
+          }}>Login</Text>
+       
+       
+        </TouchableOpacity>
+
+       
+
+
       </View>
 
+    </LinearGradient>
+  );
 
-      <Card style={styles.card}>
-
-
-        <CardContent>
-
-          <StatusBar style={{ color: "white" }} />
-          <View style={styles.container}>
-            <Text style={styles.title}>Sign In</Text>
-
-            <View style={styles.inputView}>
-
-              <Input
-              leftIcon={
-                <Icon name="user" type="antdesign" 
-
-                size={24} color="black"/>
-            }
-                style={styles.TextInput}
-                placeholder="Email."
-                placeholderTextColor="#003f5c"
-                onChangeText={(email) => setEmail(email)}
-              />
-            </View>
-
-            <View style={styles.inputView}>
-              <Input
-              leftIcon={
-                <Icon name="lock" type="antdesign" 
-                size={24} color="black"/>
-            }
-                style={styles.TextInput}
-                placeholder="Password."
-                placeholderTextColor="#003f5c"
-                secureTextEntry={true}
-                onChangeText={(password) => setPassword(password)}
-              />
-            </View>
-
-
-
-            <TouchableOpacity onPress={push} style={styles.loginBtn}>
-              <Text style={styles.loginText}>LOGIN</Text>
-            </TouchableOpacity>
-
-            <View style={styles.botom}>
-              <TouchableOpacity style={styles.forgot_button}>
-                <Text style={{color: "#3480eb"}} >Forgot Password?</Text>
-              </TouchableOpacity>
-
-              <View style={{flex: 1}}></View>
-
-
-              <TouchableOpacity style={styles.signup_button}>
-                <Text style={{color: "#3480eb"}} >Sign Up</Text>
-              </TouchableOpacity>
-            </View>
-
-          </View>
-        </CardContent>
-
-
-      </Card>
-
-    </ImageBackground >
-  )
 }
 
-export default Login
-
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    justifyContent: "center"
   },
-  card: {
-    flex: 1,
-
-    alignItems: "center",
+  inner: {
+    
+    alignItems: 'center',
+   
     justifyContent: "center",
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-
-
-
-
+    height: "70%"
   },
-
   image: {
-
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 100
+    width: Dimensions.get('window').width * 0.5,
+    resizeMode: 'contain',
+    height: 120
 
   },
-
-  inputView: {
-    borderRadius: 20,
-    height: 45,
-    width: "80%",
-
-    marginBottom: 20,
-
-    alignItems: "center",
-  },
-
-  TextInput: {
-    height: 50,
-    flex: 1,
-    width: "100%",
-    padding: 10,
-    borderBottomColor: "#000",
-  },
-
-  forgot_button: {
+  google: {
+    width: 40,
+    resizeMode: 'contain',
     height: 30,
-    alignSelf: "flex-start",
-    justifyContent: "center",
-    alignItems: "center",
-
+    
+    
 
   },
-
-  signup_button: {
-    flex: 1,
+  googleImage: {
+    width: 40,
+    resizeMode: 'contain',
     height: 30,
-    alignSelf: "flex-start",
+  
+  },
+
+  fbImage: {
+    width: 40,
+    resizeMode: 'contain',
+    height: 40,
+  },
+
+  heading: {
+    marginTop: 10,
+    fontSize: 20,
+    width: "60%",
+    fontWeight: "bold",
     justifyContent: "center",
-    alignItems: "center",
+    alignContent: "center",
+    textAlign: "center",
 
 
   },
-
-  loginBtn: {
-    borderRadius: 25,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 5,
-    backgroundColor: "#e33d3d",
-    width: "80%",
-
-
-  },
-  title: {
+  heading1: {
+    marginTop: 10,
     fontSize: 24,
-    marginBottom: 15,
+    width: "60%",
     fontWeight: "bold",
-    letterSpacing: 5,
-    alignSelf: "flex-start",
-    marginLeft: 32
-  },
-  loginText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    letterSpacing: 5,
-    color: "#fff"
-  },
-  botom: {
-    flexDirection: "row",
-    width: "80%",
-    justifyContent:'space-between'
+    justifyContent: "center",
+    alignContent: "center",
+    textAlign: "center",
+    letterSpacing: 4
 
-  }
-});
+
+  },
+  text: {
+    marginTop: 20,
+    fontSize: 16,
+    width: "60%",
+    textAlign: "center",
+    justifyContent: "center",
+    alignContent: "center"
+
+  },
+  circle: {
+    backgroundColor: "#dedede",
+    borderRadius: Math.round(Dimensions.get('window').width + Dimensions.get('window').height) / 2,
+    width: Dimensions.get('window').width * 0.4,
+    height: Dimensions.get('window').width * 0.4,
+    alignContent: "center",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  bottom: {
+    flex: 0.75,
+    justifyContent: 'flex-end',
+    width: "80%",
+   
+  },
+  continueg: {
+    width: "100%",
+    borderRadius: 20,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "#dedede",
+    borderWidth: 1,
+    marginBottom: 10,
+    flexDirection: "row",
+  },
+  continuef: {
+    width: "100%",
+    borderRadius: 20,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "#dedede",
+    borderWidth: 1,
+    flexDirection: "row"
+  },
+  heading: {
+    marginTop: 10,
+    fontSize: 20,
+    width: "60%",
+    fontWeight: "bold",
+    justifyContent: "center",
+    alignContent: "center",
+    textAlign: "center",
+
+
+  },
+})
+
+
+
+export default Login

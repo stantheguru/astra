@@ -1,4 +1,4 @@
-import { useState, useEffect, useIsFocused } from "react";
+import { useState, useEffect, useIsFocused, useRef } from "react";
 import {
     Platform,
     ScrollView,
@@ -6,7 +6,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View, FlatList, Image
+    View, FlatList, Image, LogBox
 } from "react-native";
 import Constants from "expo-constants";
 import * as SQLite from "expo-sqlite";
@@ -17,6 +17,8 @@ import { Card } from "react-native-cards";
 const Chat = () => {
     const [items, setItems] = useState(null);
     const [text, setText] = useState(null);
+    const scrollViewRef = useRef();
+
 
     useEffect(async () => {
 
@@ -27,7 +29,7 @@ const Chat = () => {
 
             formDat.append("task_id", 1)
 
-            const response = await fetch("https://acbe-197-156-137-153.ngrok.io/chats", {
+            const response = await fetch("https://gjenge.herokuapp.com/chats", {
                 method: 'POST',
                 headers: {
                     'content-type': 'multipart/form-data',
@@ -36,14 +38,15 @@ const Chat = () => {
             });
             const json = await response.json();
             const success = json.success;
-
             setItems(json)
+
 
 
         } catch (e) {
             //alert(e)
         }
 
+        LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 
         //fetch the coordinates and then store its value into the coords Hook.
 
@@ -70,28 +73,32 @@ const Chat = () => {
 
     const Send = async () => {
         try {
+            if (text == "") {
 
-            var formData = new FormData()
+            } else {
+                var formData = new FormData()
 
-            formData.append("client_email", 'c@g.com');
-            formData.append("worker_email", 'w@g.com');
-            formData.append("sender", 'w@g.com');
-            formData.append("message", text);
-            formData.append("task_id", 1);
+                formData.append("client_email", 'c@g.com');
+                formData.append("worker_email", 'w@g.com');
+                formData.append("sender", 'w@g.com');
+                formData.append("message", text);
+                formData.append("task_id", 1);
 
-            const response = await fetch("https://acbe-197-156-137-153.ngrok.io/send_chat", {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'content-type': 'multipart/form-data',
-                },
-            });
-            //Callback();
-            const json = await response.json();
+                const response = await fetch("https://gjenge.herokuapp.com/send_chat", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'content-type': 'multipart/form-data',
+                    },
+                });
+                //Callback();
+                const json = await response.json();
 
-            const success = json.success;
-            setText("")
-            FetchChats()
+                const success = json.success;
+                setText("")
+                FetchChats()
+            }
+
 
 
         } catch (e) {
@@ -105,26 +112,52 @@ const Chat = () => {
 
     return (
         <View style={styles.container}>
-            
+
 
             <Card style={{
                 alignContent: "center",
-                justifyContent: "center", marginBottom: 50,
+                justifyContent: "center", marginBottom: 36,
 
             }}>
                 <View style={{
                     flexDirection: "row", alignContent: "center", alignItems: "center", width: "100%"
                 }}>
+
+                    <TouchableOpacity style={styles.back}>
+
+                        <AntDesign style={{
+                            fontWeight: "bold"
+                        }} size={24} name="arrowleft" color="black" />
+
+                    </TouchableOpacity>
+
                     <Image style={styles.image
                     } source={require("../assets/ceo.jpg")} />
-                    
-                    <View>
-                    <Text style={styles.name}>Warlords of Kaah</Text>
-                    <Text style={styles.seen}>Online</Text>
 
-            
+                    <View style={{
+
+                        width: "67%"
+
+                    }}>
+
+                        <Text style={styles.name}>Warlords of Kaah</Text>
+                        <Text style={styles.seen}>Online</Text>
+
+
 
                     </View>
+
+
+                    <TouchableOpacity style={styles.options}>
+
+                        <SimpleLineIcons style={{
+
+                        }} size={18} name="options-vertical" color="black" />
+
+                    </TouchableOpacity>
+
+
+
 
 
                 </View>
@@ -132,39 +165,48 @@ const Chat = () => {
             </Card>
 
 
+            <ScrollView >
 
+                <FlatList  style={{
 
-            <FlatList style={{
-                marginBottom: "4%",
-                backgroundColor: "#f0f2f1",
-                paddingTop: 50,
-                paddingBottom: 40
+                        backgroundColor: "#f0f2f1",
+                        paddingTop: 20,
+                        paddingBottom: 20
 
-            }}
+                    }}
 
+                    data={items}
+                    keyExtractor={({ id }, index) => id}
+                    renderItem={({ item }) => (
+                        <View style={item.sender === 'c@g.com' ? styles.card : styles.cardR}>
 
-                data={items}
-                keyExtractor={({ id }, index) => id}
-                renderItem={({ item }) => (
-                    <View style={item.sender === 'w@g.com' ? styles.card : styles.cardR}>
+                            <View style={{ marginLeft: 5 }}>
+                                <Text style={{
+                                    color: "#000"
+                                }}>{item.message}</Text>
 
-                        <View style={{ marginLeft: 5 }}>
-                            <Text style={{
-                                color: "#000"
-                            }}>{item.message}</Text>
-                            <Text style={{
-                                color: "gray",
-                                alignSelf: "flex-end"
-                            }}>{item.sent_time}</Text>
+                                {item.sender === 'w@g.com' ?
+
+                                    <Text style={{
+                                        color: "gray",
+                                        alignSelf: "flex-end",
+                                        fontSize: 10
+                                    }}>{item.sent_time.substring(0, 5)}{item.read === "false" ? <AntDesign size={10} name="check" color="gray" />
+                                        : <Text><AntDesign size={10} name="check" color="#34B7F1" /><AntDesign size={10} name="check" color="#34B7F1" /></Text>}</Text>
+                                    : (
+                                        <Text style={{
+                                            color: "gray",
+                                            alignSelf: "flex-end", marginRight: 5, fontSize: 10
+                                        }}>{item.sent_time.substring(0, 5)}</Text>
+                                    )}
+                            </View>
                         </View>
-                    </View>
 
-
-                )}
-            />
-
+                    )}
+                />
+            </ScrollView>
             <View style={styles.flexRow}>
-                <TextInput
+                <TextInput multiline
                     onChangeText={(text) => setText(text)}
                     onSubmitEditing={() => {
                         Send();
@@ -182,6 +224,8 @@ const Chat = () => {
 
             </View>
 
+            
+
 
 
 
@@ -195,7 +239,8 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
         flex: 1,
-        paddingTop: 75,
+        paddingTop: 70,
+
     },
     heading: {
         fontSize: 20,
@@ -206,12 +251,13 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         marginRight: "5%",
         alignItems: "center",
+        maxHeight: 200
     },
+
     input: {
         borderColor: "#dedede",
-        borderRadius: 40,
+        borderRadius: 20,
         borderWidth: 1,
-        height: 48,
         margin: 10,
         padding: 8,
         width: "84%",
@@ -226,6 +272,25 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         height: 48,
         backgroundColor: "#128C7E",
+
+    },
+
+    back: {
+        width: 48,
+        justifyContent: "center",
+
+        alignSelf: "center",
+        alignItems: "center",
+        height: 48,
+
+    },
+    options: {
+        width: 48,
+        justifyContent: "center",
+
+        alignSelf: "center",
+        alignItems: "center",
+        height: 48,
 
     },
     listArea: {
@@ -273,33 +338,32 @@ const styles = StyleSheet.create({
 
     },
     image: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         marginRight: 5,
-        marginLeft: 5,
         marginBottom: 8,
         marginTop: 8
 
     },
     name: {
-        height: 20,
+        height: 15,
         borderRadius: 40,
         marginRight: 5,
         marginLeft: 5,
-       
-        marginTop: 8,
-        fontWeight: "bold", fontSize: 16, 
+
+        marginTop: 4,
+        fontWeight: "bold", fontSize: 16,
 
     },
     seen: {
-        height: 20,
+        height: 15,
         borderRadius: 40,
         marginRight: 5,
         marginLeft: 5,
 
-        marginTop: 8,
-        fontWeight: "bold", fontSize: 14, 
+        marginTop: 4,
+        fontWeight: "bold", fontSize: 12,
         color: "green"
 
     },
