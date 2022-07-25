@@ -16,6 +16,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const SwipeableCard = ({ item, removeCard, swipedDirection }) => {
   // let xPosition = new Animated.Value(0);
+  const [display, setDisplay] = useState("")
   const [xPosition, setXPosition] = useState(new Animated.Value(0));
   let swipeDirection = '';
   let cardOpacity = new Animated.Value(1);
@@ -23,6 +24,16 @@ const SwipeableCard = ({ item, removeCard, swipedDirection }) => {
     inputRange: [-200, 0, 200],
     outputRange: ['-20deg', '0deg', '20deg'],
   });
+
+  useEffect(async () => {
+    setCrush()
+  }, [])
+
+  async function setCrush() {
+    setDisplay("display")
+    await new Promise(resolve => setTimeout(resolve, 20000));
+    setDisplay("")
+  }
 
   let panResponder = PanResponder.create({
     onStartShouldSetPanResponder: (evt, gestureState) => false,
@@ -125,29 +136,40 @@ const SwipeableCard = ({ item, removeCard, swipedDirection }) => {
             fontWeight: "bold"
           }}>{item.distance} KM</Text>
         </Card>
-        <TouchableOpacity style={{
-          width: 100,
-          height: 100,
-          borderRadius: 50,
-          alignSelf: "center",
-          marginTop: "50%",
-          justifyContent: "center",
-          alignContent: 'center',
-          alignItems: 'center',
-          backgroundColor: "green"
-        }}>
-          <Text style={{
-            color: "black",
-            textAlign: "center",
-            fontWeight: "bold",
-           
-          }}>You've got a Crush!!</Text>
-        </TouchableOpacity>
+        <View style={display === "display" ? { opacity: 0.7 } : styles.crushNone}>
+          <TouchableOpacity style={{
+            width: 180,
+            height: 180,
+            borderRadius: 90,
+            alignSelf: "center",
+            marginTop: "50%",
+            justifyContent: "center",
+            alignContent: 'center',
+            alignItems: 'center',
+            backgroundColor: "purple"
+          }}>
+            <Text style={{
+              color: "white",
+              textAlign: "center",
+              fontWeight: "bold",
+              fontSize: 24
+
+            }}>YOU'VE GOT A CRUSH!!</Text>
+            <Text style={{
+              color: "white",
+              textAlign: "center",
+              fontWeight: "bold",
+              fontSize: 24
+
+            }}>💖</Text>
+          </TouchableOpacity>
+        </View>
         <View style={{
           flex: 1,
           justifyContent: 'flex-end',
           width: "100%",
           padding: 10,
+
         }}>
 
           <Text style={
@@ -181,6 +203,18 @@ const HomeScreen = () => {
   const [noMoreCard, setNoMoreCard] = useState(false);
   const [sampleCardArray, setSampleCardArray] = useState(DEMO_CONTENT);
   const [swipeDirection, setSwipeDirection] = useState('--');
+
+  const [display, setDisplay] = useState("")
+ 
+  useEffect(async () => {
+    setCrush()
+  }, [])
+
+  async function setCrush() {
+    setDisplay("display")
+    await new Promise(resolve => setTimeout(resolve, 20000));
+    setDisplay("")
+  }
 
   const removeCard = (id) => {
     // alert(id);
@@ -250,7 +284,29 @@ const HomeScreen = () => {
             <Text style={{ fontSize: 22, color: '#000' }}>No Cards Found.</Text>
           ) : null}
 
-          <View style={styles.bottom}>
+
+          <View style={display === "display" ? styles.bottom: styles.crushNone}>
+            <TouchableOpacity style={{
+              backgroundColor: "white",
+              alignItems: "center",
+              justifyContent: "center",
+              alignContent: "center",
+             
+              width: "70%",
+              borderRadius: 25,
+              elevation: 20
+            }}>
+             <Text style={{
+              alignSelf: "center",
+              fontSize: 18,
+              padding:5,
+              color: "purple",
+              fontWeight: "bold"
+             }}>Write message <SimpleLineIcons  name="bubbles" size={18} color="purple" /></Text> 
+            </TouchableOpacity>
+          </View>
+
+          <View style={display === "display" ? styles.crushNone: styles.bottom}>
             <TouchableOpacity style={{
               backgroundColor: "white",
               alignItems: "center",
@@ -438,6 +494,9 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
   },
+  crushNone: {
+    display: 'none'
+  }
 })
 
 

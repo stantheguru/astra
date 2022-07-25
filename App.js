@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import TodoApp from './screens/HomeScreen';
+import TodoApp from './screens/Chats';
 
 const App = () => {
   return (
